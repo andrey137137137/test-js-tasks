@@ -1,19 +1,18 @@
-<template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+<template lang="pug">
+#app
+  img(alt='Vue logo', src='./assets/logo.png')
+  PairSymbolsParser(str='Welcome to Your Vue.js App')
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import PairSymbolsParser from './components/PairSymbolsParser.vue';
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
-}
+    PairSymbolsParser,
+  },
+};
 </script>
 
 <style>
