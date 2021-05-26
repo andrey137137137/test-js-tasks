@@ -1,7 +1,7 @@
 <template lang="pug">
 #app
   img(alt='Vue logo', src='./assets/logo.png')
-  PairSymbolsParser(str='Welcome to Your Vue.js App')
+  PairSymbolsParser
 </template>
 
 <script>
