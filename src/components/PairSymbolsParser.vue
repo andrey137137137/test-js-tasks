@@ -12,23 +12,36 @@
 </template>
 
 <script>
+import commonMixin from '@/mixins/commonMixin.js';
+
 export default {
   name: 'PairSymbolsParser',
+  mixins: [commonMixin],
   data() {
     return {
       str: '[](([ghjghjg]"hjghjdfg"))',
-      openingBrackets: '<([{',
-      closingBrackets: '>)]}',
+      // brackets: {
+      //   '<': '>',
+      //   '(': ')',
+      //   '[': ']',
+      //   '{': '}',
+      // },
+      brackets: new Map([
+        ['<', '>'],
+        ['(', ')'],
+        ['[', ']'],
+        ['{', '}'],
+      ]),
       quotes: '"`\'',
       stack: [],
-      bracketSymbolIndex: -1,
+      bracketSymbol: null,
       quoteSymbolIndex: -1,
       isOpening: false,
     };
   },
   computed: {
     isPairBracket() {
-      return this.bracketSymbolIndex >= 0;
+      return this.bracketSymbol;
     },
     isPairQuote() {
       return this.quoteSymbolIndex >= 0;
@@ -44,7 +57,8 @@ export default {
       }
 
       return (
-        lastStackElem == this.openingBrackets[this.bracketSymbolIndex] ||
+        // this.brackets[lastStackElem] == this.bracketSymbol ||
+        this.brackets.get(lastStackElem) == this.bracketSymbol ||
         lastStackElem == this.quotes[this.quoteSymbolIndex]
       );
     },
@@ -57,28 +71,49 @@ export default {
     },
   },
   methods: {
-    setVars(localIsOpening, isBracket = true) {
-      if (isBracket) {
-        this.quoteSymbolIndex = -1;
-      } else {
-        this.bracketSymbolIndex = -1;
+    setVars(isOpening, isBracket = true) {
+      const cond = isBracket ? this.isPairBracket : this.isPairQuote;
+
+      if (cond) {
+        if (isBracket) {
+          this.quoteSymbolIndex = -1;
+        } else {
+          this.bracketSymbol = null;
+        }
+
+        this.isOpening = isOpening;
       }
 
-      this.isOpening = localIsOpening;
+      return cond;
     },
+    isOpeningBracket(symbol) {
+      // this.bracketSymbol = this.isExisted(this.brackets, symbol);
+      this.bracketSymbol = this.brackets.has(symbol);
 
+      return this.setVars(true);
+    },
+    isClosingBracket(symbol) {
+      // for (const key in this.brackets) {
+      //   if (this.brackets[key] == symbol) {
+      //     this.bracketSymbol = symbol;
+      //     break;
+      //   }
+      // }
+      for (const value of this.brackets.values()) {
+        if (value == symbol) {
+          this.bracketSymbol = symbol;
+          break;
+        }
+      }
+
+      return this.setVars(false);
+    },
     findPairSymbolIndex(symbol) {
-      this.bracketSymbolIndex = this.openingBrackets.indexOf(symbol);
-
-      if (this.isPairBracket) {
-        this.setVars(true);
+      if (this.isOpeningBracket(symbol)) {
         return;
       }
 
-      this.bracketSymbolIndex = this.closingBrackets.indexOf(symbol);
-
-      if (this.isPairBracket) {
-        this.setVars(false);
+      if (this.isClosingBracket(symbol)) {
         return;
       }
 
@@ -92,7 +127,6 @@ export default {
         }
       }
     },
-
     parsePairSymbols() {
       let curSymbol;
 
@@ -125,21 +159,3 @@ export default {
   },
 };
 </script>
-
-<!-- Add "scoped" attribute to limit CSS to this component only -->
-<style scoped>
-h3 {
-  margin: 40px 0 0;
-}
-ul {
-  list-style-type: none;
-  padding: 0;
-}
-li {
-  display: inline-block;
-  margin: 0 10px;
-}
-a {
-  color: #42b983;
-}
-</style>

@@ -14,8 +14,11 @@
 </template>
 
 <script>
+import commonMixin from '@/mixins/commonMixin.js';
+
 export default {
   name: 'TransformToSet',
+  mixins: [commonMixin],
   data() {
     return {
       str: '112344566789',
@@ -42,7 +45,7 @@ export default {
         .filter(item => {
           $vm.count++;
 
-          if (Object.prototype.hasOwnProperty.call($vm.uniquas, item)) {
+          if ($vm.isExisted($vm.uniquas, item)) {
             $vm.uniquas[item] = false;
           } else {
             $vm.uniquas[item] = true;
